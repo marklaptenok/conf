@@ -22,14 +22,24 @@ type ClociConfiguration struct {
 	timeout            time.Duration
 }
 
+func (this *ClociConfiguration) Bind_address() net.IP {
+	return this.bind_address
+}
+
+func (this *ClociConfiguration) Tls_cert_path() string {
+	return this.tls_cert_path
+}
+
 var (
-	cnf = ClociConfiguration{bind_address: net.IP{127, 0, 0, 1}, bind_port: 443, route: "compile", tls_cert_path: "", capacity: 10, rate_limit: 250 * time.Millisecond, waiting_time_limit: 1000 * time.Millisecond, timeout: 5 * time.Second}
+	default_cnf = ClociConfiguration{bind_address: net.IP{127, 0, 0, 1}, bind_port: 443, route: "compile", tls_cert_path: "/root/cloci/certificates", capacity: 10, rate_limit: 250 * time.Millisecond, waiting_time_limit: 1000 * time.Millisecond, timeout: 5 * time.Second}
 )
 
 //	Reads configuration from a file or a provided ClociConfiguration struct
 //	and returns it as a final ClociConfiguration struct
-func Read(options []string) error {
+func Read(options []string) (*ClociConfiguration, error) {
 	//	TO-DO: read configuration from a file or a provided string and return it as a conf struct
+
+	cnf := default_cnf
 
 	flags := flag.NewFlagSet("CLOCI", flag.ContinueOnError)
 	//	Writes usage information to the stdout.
@@ -59,21 +69,21 @@ func Read(options []string) error {
 
 	if cnf.bind_address == nil {
 		if location, err := logger.Get_function_name(); err == nil {
-			return &logger.ClpError{1, "Given IP address is invalid", location}
+			return nil, &logger.ClpError{1, "Given IP address is invalid", location}
 		} else {
-			return &logger.ClpError{1, "Given IP address is invalid", ""}
+			return nil, &logger.ClpError{1, "Given IP address is invalid", ""}
 		}
 	}
 
 	if cnf.bind_port == 0 {
 		if location, err := logger.Get_function_name(); err == nil {
-			return &logger.ClpError{2, "Given port is invalid", location}
+			return nil, &logger.ClpError{2, "Given port is invalid", location}
 		} else {
-			return &logger.ClpError{2, "Given port is invalid", ""}
+			return nil, &logger.ClpError{2, "Given port is invalid", ""}
 		}
 	}
 
 	logger.Debug("%v:%d", cnf.bind_address, cnf.bind_port)
 
-	return nil
+	return &cnf, nil
 }
