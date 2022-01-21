@@ -26,6 +26,10 @@ func (this *ClociConfiguration) Bind_address() net.IP {
 	return this.bind_address
 }
 
+func (this *ClociConfiguration) Bind_port() uint16 {
+	return this.bind_port
+}
+
 func (this *ClociConfiguration) Tls_cert_path() string {
 	return this.tls_cert_path
 }
