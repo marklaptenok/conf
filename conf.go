@@ -12,14 +12,19 @@ import (
 )
 
 type ClociConfiguration struct {
-	bind_address       net.IP
-	bind_port          uint16
-	route              string
-	tls_cert_path      string
-	capacity           uint16
-	rate_limit         time.Duration
-	waiting_time_limit time.Duration
-	timeout            time.Duration
+	bind_address              net.IP
+	bind_port                 uint16
+	route                     string
+	tls_cert_path             string
+	capacity                  uint16
+	rate_limit                time.Duration
+	waiting_time_limit        time.Duration
+	timeout                   time.Duration
+	response_write_timeout    time.Duration
+	tls_handshake_timeout     time.Duration
+	request_read_timeout      time.Duration
+	request_header_size_limit uint64
+	request_body_size_limit   uint64
 }
 
 func (this *ClociConfiguration) Bind_address() net.IP {
@@ -30,12 +35,54 @@ func (this *ClociConfiguration) Bind_port() uint16 {
 	return this.bind_port
 }
 
+func (this *ClociConfiguration) Route() string {
+	return this.route
+}
+
 func (this *ClociConfiguration) Tls_cert_path() string {
 	return this.tls_cert_path
 }
 
+func (this *ClociConfiguration) Timeout() time.Duration {
+	return this.timeout
+}
+
+func (this *ClociConfiguration) Response_write_timeout() time.Duration {
+	return this.response_write_timeout
+}
+
+func (this *ClociConfiguration) TLS_handshake_timeout() time.Duration {
+	return this.tls_handshake_timeout
+}
+
+func (this *ClociConfiguration) Request_read_timeout() time.Duration {
+	return this.request_read_timeout
+}
+
+func (this *ClociConfiguration) Request_header_size_limit() uint64 {
+	return this.request_header_size_limit
+}
+
+func (this *ClociConfiguration) Request_body_size_limit() uint64 {
+	return this.request_body_size_limit
+}
+
 var (
-	default_cnf = ClociConfiguration{bind_address: net.IP{127, 0, 0, 1}, bind_port: 443, route: "compile", tls_cert_path: "/root/cloci/certificates", capacity: 10, rate_limit: 250 * time.Millisecond, waiting_time_limit: 1000 * time.Millisecond, timeout: 5 * time.Second}
+	default_cnf = ClociConfiguration{
+		bind_address: net.IP{127, 0, 0, 1},
+		bind_port:    443,
+		route:        "compile",
+		//	TO-DO: get this path automatically using working directory location.
+		tls_cert_path:             "/root/cloci/certificates",
+		capacity:                  10,
+		rate_limit:                250 * time.Millisecond,
+		waiting_time_limit:        1000 * time.Millisecond,
+		timeout:                   5 * time.Second,
+		response_write_timeout:    10000 * time.Millisecond,
+		tls_handshake_timeout:     200 * time.Millisecond,
+		request_read_timeout:      200 * time.Millisecond,
+		request_header_size_limit: 1 << 10, //	1 Kb
+		request_body_size_limit:   1 << 14} //	16 Kb
 )
 
 //	Reads configuration from a file or a provided ClociConfiguration struct
